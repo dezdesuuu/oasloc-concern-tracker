@@ -44,6 +44,7 @@ export type CaseDocument = {
   file_name: string
   file_size: number
   storage_path: string
+  thumbnail_path: string | null
   uploaded_at: string
   uploaded_by: string
 }

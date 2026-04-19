@@ -45,13 +45,14 @@ create table if not exists public.cases (
 
 -- Case documents table
 create table if not exists public.case_documents (
-  id           uuid        primary key default gen_random_uuid(),
-  case_id      uuid        not null references public.cases (id) on delete cascade,
-  file_name    text        not null,
-  file_size    bigint      not null,
-  storage_path text        not null,
-  uploaded_at  timestamptz default now(),
-  uploaded_by  uuid        references auth.users (id)
+  id             uuid        primary key default gen_random_uuid(),
+  case_id        uuid        not null references public.cases (id) on delete cascade,
+  file_name      text        not null,
+  file_size      bigint      not null,
+  storage_path   text        not null,
+  thumbnail_path text,
+  uploaded_at    timestamptz default now(),
+  uploaded_by    uuid        references auth.users (id)
 );
 
 -- Indexes

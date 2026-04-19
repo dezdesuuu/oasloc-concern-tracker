@@ -78,6 +78,7 @@ export async function insertDocumentAction(doc: {
   file_name: string
   file_size: number
   storage_path: string
+  thumbnail_path: string | null
 }): Promise<{ error?: string; document?: CaseDocument }> {
   const supabase = await createClient()
   const {
@@ -98,7 +99,7 @@ export async function insertDocumentAction(doc: {
 
 export async function deleteDocumentAction(
   documentId: string,
-  storagePath: string
+  storagePaths: string[]
 ): Promise<{ error?: string }> {
   const supabase = await createClient()
   const {
@@ -109,7 +110,7 @@ export async function deleteDocumentAction(
 
   const { error: storageError } = await supabase.storage
     .from('case-documents')
-    .remove([storagePath])
+    .remove(storagePaths)
 
   if (storageError) return { error: storageError.message }
 
