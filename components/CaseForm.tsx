@@ -311,7 +311,7 @@ export function CaseForm({ caseData, caseId, initialDocuments = [] }: Props) {
             />
           </Field>
           <Field label="Aging (days)">
-            <div className="w-full border border-gray-200 bg-gray-50 rounded-md px-3 py-2 text-sm text-gray-600">
+            <div className={`w-full border border-gray-200 bg-gray-50 rounded-md px-3 py-2 text-sm ${form.status === 'In Progress' ? 'text-red-600 font-medium' : 'text-gray-600'}`}>
               {aging !== null ? `${aging} days` : '—'}
             </div>
           </Field>

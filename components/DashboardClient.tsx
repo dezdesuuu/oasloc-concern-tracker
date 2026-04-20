@@ -230,7 +230,7 @@ export function DashboardClient({
                     <td className="px-4 py-3 whitespace-nowrap">
                       <StatusBadge status={c.status} />
                     </td>
-                    <td className="px-4 py-3 text-gray-600 whitespace-nowrap">
+                    <td className={`px-4 py-3 whitespace-nowrap ${c.status === 'In Progress' ? 'text-red-600 font-medium' : 'text-gray-600'}`}>
                       {computeAging(c.entry_date, c.closed_date)} days
                     </td>
                   </tr>
