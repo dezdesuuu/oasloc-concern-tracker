@@ -34,6 +34,7 @@ export type Case = {
   status: string | null
   status_date: string | null
   closed_by: string | null
+  closed_date: string | null
   created_at: string
   created_by: string
 }
@@ -84,6 +85,7 @@ export type CaseFormData = {
   status: string
   status_date: string
   closed_by: string
+  closed_date: string
 }
 
 export const INITIAL_FORM_DATA: CaseFormData = {
@@ -121,4 +123,5 @@ export const INITIAL_FORM_DATA: CaseFormData = {
   status: '',
   status_date: '',
   closed_by: '',
+  closed_date: '',
 }

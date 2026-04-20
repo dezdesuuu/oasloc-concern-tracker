@@ -20,13 +20,13 @@ export function formatDate(isoDate: string | null): string {
   return `${m}/${d}/${y}`
 }
 
-export function computeAging(entryDate: string | null): number {
+export function computeAging(entryDate: string | null, closedDate?: string | null): number {
   if (!entryDate) return 0
   const entry = new Date(entryDate)
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
+  const end = closedDate ? new Date(closedDate) : new Date()
   entry.setHours(0, 0, 0, 0)
-  const diff = Math.floor((today.getTime() - entry.getTime()) / (1000 * 60 * 60 * 24))
+  end.setHours(0, 0, 0, 0)
+  const diff = Math.floor((end.getTime() - entry.getTime()) / (1000 * 60 * 60 * 24))
   return Math.max(0, diff)
 }
 

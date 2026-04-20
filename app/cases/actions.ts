@@ -51,6 +51,7 @@ export async function saveCaseAction(
     status: emptyToNull(data.status),
     status_date: emptyToNull(data.status_date),
     closed_by: emptyToNull(data.closed_by),
+    closed_date: emptyToNull(data.closed_date),
   }
 
   if (caseId) {

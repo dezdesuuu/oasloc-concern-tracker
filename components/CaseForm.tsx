@@ -56,6 +56,7 @@ function caseToFormData(c: Case): CaseFormData {
     status: c.status ?? '',
     status_date: c.status_date ?? '',
     closed_by: c.closed_by ?? '',
+    closed_date: c.closed_date ?? '',
   }
 }
 
@@ -76,6 +77,7 @@ const colsClass: Record<number, string> = {
   1: 'sm:grid-cols-1',
   2: 'sm:grid-cols-2',
   3: 'sm:grid-cols-3',
+  4: 'sm:grid-cols-4',
 }
 
 function Grid({ cols = 2, children }: { cols?: number; children: React.ReactNode }) {
@@ -262,7 +264,7 @@ export function CaseForm({ caseData, caseId, initialDocuments = [] }: Props) {
     })
   }
 
-  const aging = form.entry_date ? computeAging(form.entry_date) : null
+  const aging = form.entry_date ? computeAging(form.entry_date, form.closed_date) : null
   const pageTitle = caseId
     ? `Edit Case — ${caseData?.reference_number ?? ''}`
     : 'New Case'
@@ -505,7 +507,7 @@ export function CaseForm({ caseData, caseId, initialDocuments = [] }: Props) {
               onChange={(v) => set('remarks', v)}
             />
           </Field>
-          <Grid cols={3}>
+          <Grid cols={4}>
             <Field label="Status">
               <SelectInput
                 value={form.status}
@@ -518,6 +520,9 @@ export function CaseForm({ caseData, caseId, initialDocuments = [] }: Props) {
             </Field>
             <Field label="Closed By">
               <TextInput value={form.closed_by} onChange={(v) => set('closed_by', v)} />
+            </Field>
+            <Field label="Closed Date">
+              <DateInput value={form.closed_date} onChange={(v) => set('closed_date', v)} />
             </Field>
           </Grid>
         </div>

@@ -39,6 +39,7 @@ create table if not exists public.cases (
   status               text        check (status in ('For Compliance', 'In Progress', 'Completed') or status is null),
   status_date          date,
   closed_by            text,
+  closed_date          date,
   created_at           timestamptz default now(),
   created_by           uuid        references auth.users (id)
 );

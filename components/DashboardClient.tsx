@@ -231,7 +231,7 @@ export function DashboardClient({
                       <StatusBadge status={c.status} />
                     </td>
                     <td className="px-4 py-3 text-gray-600 whitespace-nowrap">
-                      {computeAging(c.entry_date)} days
+                      {computeAging(c.entry_date, c.closed_date)} days
                     </td>
                   </tr>
                 ))
