@@ -180,7 +180,7 @@ export async function deleteDocumentAction(
 
   if (docRow) {
     const caseRef =
-      (docRow.cases as { reference_number: string } | null)?.reference_number ?? ''
+      (docRow.cases as unknown as { reference_number: string } | null)?.reference_number ?? ''
     await insertAuditLog(supabase, {
       case_id: docRow.case_id,
       case_reference: caseRef,
