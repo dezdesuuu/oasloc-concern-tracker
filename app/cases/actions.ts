@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { emptyToNull } from '@/lib/utils'
+import { diffCaseFields, insertAuditLog } from '@/lib/audit'
 import type { CaseFormData, CaseDocument } from '@/lib/types'
 
 export async function saveCaseAction(
@@ -55,12 +56,36 @@ export async function saveCaseAction(
   }
 
   if (caseId) {
+    // Fetch old record before updating so we can diff fields
+    const { data: oldCase } = await supabase
+      .from('cases')
+      .select('*')
+      .eq('id', caseId)
+      .single()
+
     const { error } = await supabase
       .from('cases')
       .update(payload)
       .eq('id', caseId)
 
     if (error) return { error: error.message }
+
+    if (oldCase) {
+      const changed = diffCaseFields(
+        oldCase as Record<string, unknown>,
+        payload as Record<string, unknown>
+      )
+      if (changed.length > 0) {
+        await insertAuditLog(supabase, {
+          case_id: caseId,
+          case_reference: payload.reference_number,
+          action: 'updated',
+          changed_fields: changed,
+          performed_by: user.email!,
+        })
+      }
+    }
+
     return { id: caseId }
   } else {
     const { data: newCase, error } = await supabase
@@ -70,6 +95,14 @@ export async function saveCaseAction(
       .single()
 
     if (error) return { error: error.message }
+
+    await insertAuditLog(supabase, {
+      case_id: newCase.id,
+      case_reference: payload.reference_number,
+      action: 'created',
+      performed_by: user.email!,
+    })
+
     return { id: newCase.id }
   }
 }
@@ -95,6 +128,22 @@ export async function insertDocumentAction(doc: {
     .single()
 
   if (error) return { error: error.message }
+
+  // Fetch case reference for the audit log
+  const { data: caseRow } = await supabase
+    .from('cases')
+    .select('reference_number')
+    .eq('id', doc.case_id)
+    .single()
+
+  await insertAuditLog(supabase, {
+    case_id: doc.case_id,
+    case_reference: caseRow?.reference_number ?? '',
+    action: 'document_uploaded',
+    changed_fields: [{ field: 'document', old_value: null, new_value: doc.file_name }],
+    performed_by: user.email!,
+  })
+
   return { document: data as CaseDocument }
 }
 
@@ -109,6 +158,13 @@ export async function deleteDocumentAction(
 
   if (!user) return { error: 'Not authenticated' }
 
+  // Fetch document + case reference before deletion for audit log
+  const { data: docRow } = await supabase
+    .from('case_documents')
+    .select('file_name, case_id, cases(reference_number)')
+    .eq('id', documentId)
+    .single()
+
   const { error: storageError } = await supabase.storage
     .from('case-documents')
     .remove(storagePaths)
@@ -121,5 +177,18 @@ export async function deleteDocumentAction(
     .eq('id', documentId)
 
   if (error) return { error: error.message }
+
+  if (docRow) {
+    const caseRef =
+      (docRow.cases as { reference_number: string } | null)?.reference_number ?? ''
+    await insertAuditLog(supabase, {
+      case_id: docRow.case_id,
+      case_reference: caseRef,
+      action: 'document_deleted',
+      changed_fields: [{ field: 'document', old_value: docRow.file_name, new_value: null }],
+      performed_by: user.email!,
+    })
+  }
+
   return {}
 }

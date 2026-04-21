@@ -54,6 +54,18 @@ export function displayToIsoDate(display: string): string {
   return `${match[3]}-${match[1]}-${match[2]}`
 }
 
+export function formatDateTime(ts: string): string {
+  const d = new Date(ts)
+  const m = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  const y = d.getFullYear()
+  const hours = d.getHours()
+  const min = String(d.getMinutes()).padStart(2, '0')
+  const ampm = hours >= 12 ? 'PM' : 'AM'
+  const h12 = hours % 12 || 12
+  return `${m}/${day}/${y} ${h12}:${min} ${ampm}`
+}
+
 /** Convert ISO date (YYYY-MM-DD) to display value (mm/dd/yyyy) */
 export function isoToDisplayDate(iso: string | null): string {
   if (!iso) return ''

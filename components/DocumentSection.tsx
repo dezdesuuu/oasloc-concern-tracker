@@ -120,15 +120,20 @@ function FileIcon({ fileName }: { fileName: string }) {
   )
 }
 
+function isMobile(): boolean {
+  return /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)
+}
+
 interface TileProps {
   doc: CaseDocument
   urls: UrlPair | undefined
-  onDownload: () => void
+  onTileClick: () => void  // view (desktop) or download (mobile)
+  onDownload: () => void   // always blob download
   onDelete: () => void
   isDeleting: boolean
 }
 
-function DocumentTile({ doc, urls, onDownload, onDelete, isDeleting }: TileProps) {
+function DocumentTile({ doc, urls, onTileClick, onDownload, onDelete, isDeleting }: TileProps) {
   const tooltip = [
     doc.file_name,
     formatFileSize(doc.file_size),
@@ -144,7 +149,7 @@ function DocumentTile({ doc, urls, onDownload, onDelete, isDeleting }: TileProps
       {/* Image box */}
       <div
         className="relative w-[120px] h-[120px] rounded-lg overflow-hidden border border-gray-200 bg-gray-100 cursor-pointer"
-        onClick={onDownload}
+        onClick={onTileClick}
       >
         {urls?.displayUrl ? (
           <img
@@ -157,11 +162,17 @@ function DocumentTile({ doc, urls, onDownload, onDelete, isDeleting }: TileProps
           <FileIcon fileName={doc.file_name} />
         )}
 
-        {/* Hover download overlay */}
-        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-          <span className="text-white text-xs font-semibold bg-black/60 px-2.5 py-1 rounded-full">
+        {/* Hover overlay — Download button pinned to bottom, shown on hover */}
+        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center pb-2">
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              onDownload()
+            }}
+            className="text-white text-[11px] font-semibold bg-black/60 hover:bg-black/80 px-2.5 py-1 rounded-full transition-colors"
+          >
             Download
-          </span>
+          </button>
         </div>
       </div>
 
@@ -408,6 +419,14 @@ export function DocumentSection({ caseId, initialDocuments }: Props) {
                   key={doc.id}
                   doc={doc}
                   urls={urlCache[doc.id]}
+                  onTileClick={() => {
+                    if (isMobile()) {
+                      handleDownload(doc)
+                    } else {
+                      const url = urlCache[doc.id]?.downloadUrl
+                      if (url) window.open(url, '_blank')
+                    }
+                  }}
                   onDownload={() => handleDownload(doc)}
                   onDelete={() => handleDelete(doc)}
                   isDeleting={deletingId === doc.id}

@@ -39,6 +39,16 @@ export type Case = {
   created_by: string
 }
 
+export type AuditLog = {
+  id: string
+  case_id: string
+  case_reference: string
+  action: string
+  changed_fields: { field: string; old_value: string | null; new_value: string | null }[] | null
+  performed_by: string
+  performed_at: string
+}
+
 export type CaseDocument = {
   id: string
   case_id: string
